@@ -132,3 +132,28 @@ export function longestStreak(sessions: Session[]): number {
   }
   return best;
 }
+
+export interface DailyWpm {
+  /** YYYY-MM-DD (hora local). */
+  day: string;
+  /** Promedio de palabras por minuto de las lecturas con micrófono de ese día. */
+  wpm: number;
+  readings: number;
+}
+
+/** Fluidez por día, de más antiguo a más reciente. Los días sin lecturas con micrófono no aparecen. */
+export function dailyWpm(sessions: Session[]): DailyWpm[] {
+  const byDay = new Map<string, number[]>();
+  for (const s of sessions) {
+    if (s.wpm === null || s.accuracy === null) continue;
+    const k = dayKey(new Date(s.date));
+    byDay.set(k, [...(byDay.get(k) ?? []), s.wpm]);
+  }
+  return [...byDay.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([day, values]) => ({
+      day,
+      wpm: Math.round(values.reduce((a, b) => a + b, 0) / values.length),
+      readings: values.length,
+    }));
+}

@@ -1,5 +1,6 @@
 import { stories } from '../data/stories';
-import { badges, longestStreak, streak, type Progress, type Session } from '../lib/storage';
+import { badges, dailyWpm, longestStreak, streak, type Progress, type Session } from '../lib/storage';
+import DailyWpmChart from './DailyWpmChart';
 import Stars from './Stars';
 import TopBar from './TopBar';
 
@@ -8,6 +9,7 @@ export default function ProgressView({ progress, onBack }: { progress: Progress;
   const withMic = sessions.filter((s) => s.wpm !== null && s.accuracy !== null);
   const bestWpm = Math.max(0, ...withMic.map((s) => s.wpm!));
   const avgAcc = withMic.length ? Math.round((withMic.reduce((a, s) => a + s.accuracy!, 0) / withMic.length) * 100) : null;
+  const days = dailyWpm(sessions);
   const quizTotal = sessions.reduce((a, s) => a + s.quizTotal, 0);
   const quizPct = quizTotal ? Math.round((sessions.reduce((a, s) => a + s.quizCorrect, 0) / quizTotal) * 100) : null;
 
@@ -24,7 +26,16 @@ export default function ProgressView({ progress, onBack }: { progress: Progress;
       </section>
 
       <section className="card">
-        <h2>Palabras por minuto</h2>
+        <h2>Fluidez día a día</h2>
+        {days.length > 0 ? (
+          <DailyWpmChart days={days} />
+        ) : (
+          <p className="muted">Lee un cuento con micrófono para ver tu primera barra.</p>
+        )}
+      </section>
+
+      <section className="card">
+        <h2>Palabras por minuto en cada lectura</h2>
         {withMic.length >= 2 ? (
           <WpmChart sessions={withMic.slice(-20)} />
         ) : (

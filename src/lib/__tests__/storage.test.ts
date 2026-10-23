@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeStars, longestStreak, readToday, streak, type Session } from '../storage';
+import { computeStars, dailyWpm, longestStreak, readToday, streak, type Session } from '../storage';
 
 const at = (y: number, m: number, d: number): Session => ({
   storyId: 'x',
@@ -42,5 +42,27 @@ describe('computeStars', () => {
     expect(computeStars(3, 3, 0.95)).toBe(3);
     expect(computeStars(3, 3, 0.6)).toBe(2);
     expect(computeStars(3, 3, null)).toBe(3);
+  });
+});
+
+describe('dailyWpm', () => {
+  const withWpm = (s: Session, wpm: number | null, accuracy: number | null = 0.9): Session => ({ ...s, wpm, accuracy });
+
+  it('promedia las lecturas del mismo día y omite los días sin lectura', () => {
+    const s = [
+      withWpm(at(2026, 10, 22), 90),
+      withWpm(at(2026, 10, 20), 70),
+      withWpm(at(2026, 10, 22), 101),
+      withWpm(at(2026, 10, 23), 95),
+    ];
+    expect(dailyWpm(s)).toEqual([
+      { day: '2026-10-20', wpm: 70, readings: 1 },
+      { day: '2026-10-22', wpm: 96, readings: 2 },
+      { day: '2026-10-23', wpm: 95, readings: 1 },
+    ]);
+  });
+
+  it('ignora las lecturas sin micrófono', () => {
+    expect(dailyWpm([withWpm(at(2026, 10, 20), 120, null)])).toEqual([]);
   });
 });
