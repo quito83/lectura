@@ -41,13 +41,14 @@ export function listen({ lang = 'es-ES', onText, onError }: ListenOptions): List
     rec.maxAlternatives = 1;
     let sessionFinal = '';
     rec.onresult = (e: any) => {
+      const finals: string[] = [];
       let interim = '';
-      sessionFinal = '';
       for (let i = 0; i < e.results.length; i++) {
         const r = e.results[i];
-        if (r.isFinal) sessionFinal += ' ' + r[0].transcript;
+        if (r.isFinal) finals.push(r[0].transcript);
         else interim += ' ' + r[0].transcript;
       }
+      sessionFinal = mergeResults(finals);
       onText(`${finalText} ${sessionFinal} ${interim}`);
     };
     rec.onerror = (e: any) => {
@@ -75,6 +76,22 @@ export function listen({ lang = 'es-ES', onText, onError }: ListenOptions): List
       rec?.stop();
     },
   };
+}
+
+/**
+ * Une los resultados finales de una sesión. Chrome en Android a veces repite
+ * en cada resultado todo lo reconocido antes («el faro», «el faro que»…);
+ * si un resultado empieza con el anterior, lo sustituye en lugar de sumarse.
+ */
+export function mergeResults(results: string[]): string {
+  const pieces: string[] = [];
+  const key = (t: string) => t.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  for (const r of results) {
+    const last = pieces[pieces.length - 1];
+    if (last !== undefined && key(r).startsWith(key(last))) pieces[pieces.length - 1] = r;
+    else pieces.push(r);
+  }
+  return pieces.join(' ');
 }
 
 export function speak(text: string, rate = 0.85): void {

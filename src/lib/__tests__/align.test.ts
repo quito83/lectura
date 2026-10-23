@@ -45,6 +45,36 @@ describe('align', () => {
   });
 });
 
+describe('align · casos reales', () => {
+  const text = tokenize('Cada noche bostezaba y su luz se apagaba un poco. Una gaviota llamada Lila se dio cuenta.');
+
+  it('no salta palabras cuando se repite una frase ya leída', () => {
+    // Chrome en Android a veces devuelve otra vez lo ya reconocido; los niños también se corrigen.
+    const a = align(text, words('cada noche bostezaba y su luz se y su luz se apagaba'));
+    expect(a.skipped).toBe(0);
+    expect(a.correct).toBe(8);
+  });
+
+  it('no salta por una palabra común oída de más', () => {
+    const a = align(text, words('cada noche bostezaba se y su luz'));
+    expect(a.skipped).toBe(0);
+    expect(a.correct).toBe(6);
+  });
+
+  it('no salta cuando el reconocimiento confunde la palabra siguiente', () => {
+    // «bostezaba» se oye mal como «se» y no debe saltar hasta el «se» de más adelante
+    const a = align(text, words('cada noche se y su luz se apagaba'));
+    expect(a.skipped).toBe(1);
+    expect(a.correct).toBe(7);
+  });
+
+  it('sí detecta un salto real cuando sigue leyendo bien después', () => {
+    const a = align(text, words('cada noche una gaviota llamada lila se dio cuenta'));
+    expect(a.skipped).toBe(8);
+    expect(a.correct).toBe(9);
+  });
+});
+
 describe('wordsPerMinute', () => {
   it('calcula palabras correctas por minuto', () => {
     expect(wordsPerMinute(90, 60000)).toBe(90);
