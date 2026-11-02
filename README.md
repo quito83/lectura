@@ -34,3 +34,14 @@ Es un sitio estático: sube `dist/` a cualquier hosting con HTTPS (necesario par
 - **iPhone/iPad (Safari)**: botón Compartir → «Añadir a pantalla de inicio».
 
 El reconocimiento de voz funciona mejor en Chrome (Android/ordenador) y Safari (iOS). Firefox no lo soporta, así que allí se usa el modo cronómetro.
+
+## Publicidad (Google AdSense)
+
+Los anuncios están desactivados hasta configurar dos variables de entorno (en Vercel: Settings → Environment Variables, y volver a desplegar):
+
+| Variable | Valor |
+|---|---|
+| `VITE_ADSENSE_CLIENT` | Tu ID de editor, p. ej. `ca-pub-1234567890123456` |
+| `VITE_ADSENSE_SLOT` | El ID de un bloque de anuncios «Display» adaptable |
+
+Con `VITE_ADSENSE_CLIENT` el build añade el script de AdSense al `<head>` (necesario para verificar el sitio) y genera `/ads.txt`. Los anuncios solo se muestran al final de **Inicio** y **Mi progreso**, nunca durante la lectura ni las preguntas, y se piden con tratamiento infantil (`data-tag-for-age-treatment="1"`), es decir, sin publicidad personalizada.

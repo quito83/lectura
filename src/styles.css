@@ -647,3 +647,19 @@ button {
   color: var(--muted);
   white-space: pre;
 }
+
+/* --- Publicidad --- */
+.ad {
+  margin-top: 24px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  min-height: 100px;
+}
+.ad-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}

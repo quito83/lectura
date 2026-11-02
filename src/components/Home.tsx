@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { stories, LEVEL_NAMES, type Story } from '../data/stories';
 import { bestStars, readToday, streak, type Progress } from '../lib/storage';
+import AdBanner from './AdBanner';
 import Stars from './Stars';
 
 interface Props {
@@ -106,6 +107,7 @@ export default function Home({ progress, update, onRead, onProgress, onParents }
           </div>
         </section>
       ))}
+      <AdBanner />
     </main>
   );
 }

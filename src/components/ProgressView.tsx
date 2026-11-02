@@ -1,5 +1,6 @@
 import { stories } from '../data/stories';
 import { badges, dailyWpm, longestStreak, streak, type Progress, type Session } from '../lib/storage';
+import AdBanner from './AdBanner';
 import DailyWpmChart from './DailyWpmChart';
 import Stars from './Stars';
 import TopBar from './TopBar';
@@ -80,6 +81,7 @@ export default function ProgressView({ progress, onBack }: { progress: Progress;
           })}
         </ul>
       </section>
+      <AdBanner />
     </main>
   );
 }

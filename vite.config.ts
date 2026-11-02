@@ -1,10 +1,43 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-export default defineConfig({
+/**
+ * Con VITE_ADSENSE_CLIENT (ca-pub-…) configurado, añade el script de AdSense
+ * al <head> (Google lo busca ahí para verificar el sitio) y genera /ads.txt.
+ */
+function adsense(client: string | undefined): Plugin {
+  return {
+    name: 'adsense',
+    transformIndexHtml() {
+      if (!client) return [];
+      return [
+        {
+          tag: 'script',
+          injectTo: 'head',
+          attrs: {
+            async: true,
+            src: `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}`,
+            crossorigin: 'anonymous',
+          },
+        },
+      ];
+    },
+    generateBundle() {
+      if (!client) return;
+      this.emitFile({
+        type: 'asset',
+        fileName: 'ads.txt',
+        source: `google.com, ${client.replace(/^ca-/, '')}, DIRECT, f08c47fec0942fa0\n`,
+      });
+    },
+  };
+}
+
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
+    adsense(loadEnv(mode, '.').VITE_ADSENSE_CLIENT),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
@@ -41,4 +74,4 @@ export default defineConfig({
       },
     }),
   ],
-});
+}));
